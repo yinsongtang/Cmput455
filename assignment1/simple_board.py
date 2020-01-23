@@ -121,6 +121,7 @@ class SimpleGoBoard(object):
         for stone in where1d(block):
             empty_nbs = self.neighbors_of_color(stone, EMPTY)
             if empty_nbs:
+                #print("True!")
                 return True
         return False
 
@@ -164,6 +165,17 @@ class SimpleGoBoard(object):
         return single_capture
         '''
         return True
+    
+    def detect_capture(self, nb_point):
+        opp_block = self._block_of(nb_point)
+            #for point in opp_block:
+            #print(point)
+        if not self._has_liberty(opp_block):
+            return False
+        return True
+            
+    def neighbors(self, point):
+        return [point - 1, point + 1, point - self.NS, point + self.NS]
 
     def play_move(self, point, color):
         """
@@ -178,8 +190,8 @@ class SimpleGoBoard(object):
             return False
         elif self.board[point] != EMPTY:
             return False
-        if point == self.ko_recapture:
-            return False
+        #if point == self.ko_recapture:
+            #return False
             
         # General case: deal with captures, suicide, and next ko point
         opp_color = GoBoardUtil.opponent(color)
@@ -191,7 +203,7 @@ class SimpleGoBoard(object):
             if self.board[nb] == opp_color:
                 single_capture = self._detect_and_process_capture(nb)
                 if single_capture == False:
-                    self.board[point] = EMPTY # undo capture move
+                    #self.board[point] = EMPTY # undo capture move
                     return False
         #single_captures.append(single_capture)
         block = self._block_of(point)
