@@ -10,6 +10,7 @@ The board uses a 1-dimensional representation with padding
 """
 
 import numpy as np
+import time
 from board_util import GoBoardUtil, BLACK, WHITE, EMPTY, BORDER, \
                        PASS, is_black_white, coord_to_point, where1d, \
                        MAXSIZE, NULLPOINT
@@ -295,6 +296,31 @@ class SimpleGoBoard(object):
 
     def endOfGame(self):
         return self.winner() == EMPTY
+
+    def negamaxBoolean(self):
+        if self.endOfGame():
+            return self.staticallyEvaluateForPlay()
+        empties = self.get_empty_points()
+        color = self.current_player
+        legal_moves = []
+        for move in empties:
+            if self.is_legal(move, color):
+                legal_moves.append(move)
+        for m in legal_moves:
+            self.play_move(move, color)
+            success = not self.negamaxBoolean()
+            self.undoMove()
+            if success:
+                return True
+        return False
+
+    def solveForColor(self, color):
+        assert is_black_white(color)
+        start = time.process_time()
+        winForToPlay = self.negamaxBoolean()
+        timeUsed = time.process_time() - start
+        winForColor = winForToPlay == (color == self.current_player)
+        return winForColor, timeUsed
 
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """

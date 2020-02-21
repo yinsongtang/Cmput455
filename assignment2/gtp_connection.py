@@ -251,7 +251,7 @@ class GtpConnection():
         """
         sets the maximum time to use for all following genmove or solve commands, until it is changed by another timelimit command
         """
-        if type(args[0]) == int and args[0] >= 1 and args[0] <= 100:
+        if args[0] >= 1 and args[0] <= 100:
             self.maxtime = args[0]
         else:
             self.respond("illegal time: \"{} \" ".format(args[0]))
@@ -259,6 +259,7 @@ class GtpConnection():
 
     
     def solve_cmd(self, args):
+        
     
     def genmove_cmd(self, args):
         """
