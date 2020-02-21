@@ -70,6 +70,7 @@ class SimpleGoBoard(object):
         self.WE = 1
         self.ko_recapture = None
         self.current_player = BLACK
+        self.moves = []
         self.maxpoint = size * size + 3 * (size + 1)
         self.board = np.full(self.maxpoint, BORDER, dtype = np.int32)
         self.liberty_of = np.full(self.maxpoint, NULLPOINT, dtype = np.int32)
@@ -260,11 +261,40 @@ class SimpleGoBoard(object):
             if not self._has_liberty(block): # undo suicide move
                 self.board[point] = EMPTY
                 raise ValueError("suicide")
+        self.moves.append(point)
         self.ko_recapture = None
         if in_enemy_eye and len(single_captures) == 1:
             self.ko_recapture = single_captures[0]
         self.current_player = GoBoardUtil.opponent(color)
         return True
+
+    def undoMove(self):
+        point = self.moves.pop()
+        self.board[point] = EMPTY
+        self.current_player = GoBoardUtil.opponent(self.current_player)
+    
+    def winner(self):
+        result = EMPTY
+        empties = self.get_empty_points()
+        color = self.current_player
+        legal_moves = []
+        for move in empties:
+            if self.is_legal(move, color):
+                legal_moves.append(move)
+        if not legal_moves:
+            result = BLACK if self.current_player == WHITE else WHITE
+        return result
+
+    def staticallyEvaluateForPlay(self):
+        winColor = self.winner()
+        assert winColor != EMPTY
+        if winColor == self.current_player:
+            return True
+        assert winColor == GoBoardUtil.opponent(self.current_player)
+        return False
+
+    def endOfGame(self):
+        return self.winner() == EMPTY
 
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """
