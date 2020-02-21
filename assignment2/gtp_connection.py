@@ -259,8 +259,7 @@ class GtpConnection():
 
     
     def solve_cmd(self, args):
-        
-
+    
     def genmove_cmd(self, args):
         """
         Generate a move for the color args[0] in {'b', 'w'}, for the game of gomoku.
