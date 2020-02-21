@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #/usr/local/bin/python3
 # Set the path to your python3 above
 
@@ -30,7 +30,7 @@ def run():
     """
     start the gtp connection and wait for commands.
     """
-    board = SimpleGoBoard(7)
+    board = SimpleGoBoard(3)
     con = GtpConnection(Go0(), board)
     con.start_connection()
 
