@@ -263,6 +263,7 @@ class GtpConnection():
         print(str(winForColor) + "\n")
         print(str(timeUsed) + "\n")
         print(str(winningMove) + "\n")
+        player = "b" if self.board.current_player == BLACK else "w"
         if timeUsed > self.maxtime:
             self.respond("unknown")
             return
