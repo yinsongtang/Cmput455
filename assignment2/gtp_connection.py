@@ -273,8 +273,6 @@ class GtpConnection():
         else:
             player = "w" if self.board.current_player == BLACK else "b"
             self.respond(player)
-
-
     
     def genmove_cmd(self, args):
         """
