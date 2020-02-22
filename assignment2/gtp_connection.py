@@ -51,7 +51,7 @@ class GtpConnection():
             "gogui-rules_board": self.gogui_rules_board_cmd,
             "gogui-rules_final_result": self.gogui_rules_final_result_cmd,
             "gogui-analyze_commands": self.gogui_analyze_cmd,
-            "timelimit": self.timelimit_cmd
+            "timelimit": self.timelimit_cmd,
             "solve": self.solve_cmd
         }
 
@@ -251,7 +251,7 @@ class GtpConnection():
         """
         sets the maximum time to use for all following genmove or solve commands, until it is changed by another timelimit command
         """
-        if args[0] >= 1 and args[0] <= 100:
+        if int(args[0]) >= 1 and int(args[0]) <= 100:
             self.maxtime = args[0]
         else:
             self.respond("illegal time: \"{} \" ".format(args[0]))
@@ -259,7 +259,11 @@ class GtpConnection():
 
     
     def solve_cmd(self, args):
-        
+        if self.board.negamaxBoolean():
+            self.respond(self.board.current_player)
+        else:
+            self.respond(GoBoardUtil.opponent(self.current_player))
+        return
     
     def genmove_cmd(self, args):
         """

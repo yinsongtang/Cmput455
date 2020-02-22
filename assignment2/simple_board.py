@@ -293,9 +293,9 @@ class SimpleGoBoard(object):
             return True
         assert winColor == GoBoardUtil.opponent(self.current_player)
         return False
-
+        
     def endOfGame(self):
-        return self.winner() == EMPTY
+        return self.winner() != EMPTY
 
     def negamaxBoolean(self):
         if self.endOfGame():
