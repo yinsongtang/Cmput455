@@ -51,7 +51,7 @@ class GtpConnection():
             "gogui-rules_board": self.gogui_rules_board_cmd,
             "gogui-rules_final_result": self.gogui_rules_final_result_cmd,
             "gogui-analyze_commands": self.gogui_analyze_cmd,
-            "timelimit": self.timelimit_cmd
+            "timelimit": self.timelimit_cmd,
             "solve": self.solve_cmd
         }
 
@@ -251,15 +251,30 @@ class GtpConnection():
         """
         sets the maximum time to use for all following genmove or solve commands, until it is changed by another timelimit command
         """
-        if args[0] >= 1 and args[0] <= 100:
-            self.maxtime = args[0]
+        if int(args[0]) >= 1 and int(args[0]) <= 100:
+            self.maxtime = int(args[0])
         else:
             self.respond("illegal time: \"{} \" ".format(args[0]))
             return
 
     
     def solve_cmd(self, args):
-        
+        winForColor, timeUsed, winningMove = self.board.solveForColor(self.board.current_player)
+        print(str(winForColor) + "\n")
+        print(str(timeUsed) + "\n")
+        print(str(winningMove) + "\n")
+        if timeUsed > self.maxtime:
+            self.respond("unknown")
+            return
+        if winForColor:
+            move_coord = point_to_coord(winningMove, self.board.size)
+            move_as_string = format_point(move_coord)
+            self.respond(self.board.current_player + " " + move_as_string)
+        else:
+            player = "w" if self.board.current_player == BLACK else "b"
+            self.respond(player)
+
+
     
     def genmove_cmd(self, args):
         """

@@ -72,6 +72,7 @@ class SimpleGoBoard(object):
         self.ko_recapture = None
         self.current_player = BLACK
         self.moves = []
+        self.current_winning_move = None
         self.maxpoint = size * size + 3 * (size + 1)
         self.board = np.full(self.maxpoint, BORDER, dtype = np.int32)
         self.liberty_of = np.full(self.maxpoint, NULLPOINT, dtype = np.int32)
@@ -295,7 +296,7 @@ class SimpleGoBoard(object):
         return False
 
     def endOfGame(self):
-        return self.winner() == EMPTY
+        return self.winner() != EMPTY
 
     def negamaxBoolean(self):
         if self.endOfGame():
@@ -306,11 +307,12 @@ class SimpleGoBoard(object):
         for move in empties:
             if self.is_legal(move, color):
                 legal_moves.append(move)
-        for m in legal_moves:
+        for move in legal_moves:
             self.play_move(move, color)
             success = not self.negamaxBoolean()
             self.undoMove()
             if success:
+                self.current_winning_move = move
                 return True
         return False
 
@@ -320,7 +322,7 @@ class SimpleGoBoard(object):
         winForToPlay = self.negamaxBoolean()
         timeUsed = time.process_time() - start
         winForColor = winForToPlay == (color == self.current_player)
-        return winForColor, timeUsed
+        return winForColor, timeUsed, self.current_winning_move
 
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """
