@@ -12,6 +12,7 @@ from board_util import GoBoardUtil, BLACK, WHITE, EMPTY, BORDER, PASS, \
                        MAXSIZE, coord_to_point
 import numpy as np
 import re
+import time
 
 class GtpConnection():
 
@@ -252,19 +253,19 @@ class GtpConnection():
         sets the maximum time to use for all following genmove or solve commands, until it is changed by another timelimit command
         """
         if int(args[0]) >= 1 and int(args[0]) <= 100:
-            self.board.time = int(args[0])
+            self.maxtime = int(args[0])
         else:
             self.respond("illegal time: \"{} \" ".format(args[0]))
             return
 
     
     def solve_cmd(self, args):
-        winForColor, timeUsed, winningMove = self.board.solveForColor(self.board.current_player)
-        print(str(winForColor) + "\n")
-        print(str(timeUsed) + "\n")
-        print(str(winningMove) + "\n")
+        winForColor, timeOut, winningMove = self.board.solve(self.board.current_player,self.maxtime)
+        #print(str(winForColor) + "\n")
+        print(str(time.time() - self.board.time + self.maxtime) + "\n")
+        #print(str(winningMove) + "\n")
         player = "b" if self.board.current_player == BLACK else "w"
-        if timeUsed > self.maxtime:
+        if timeOut == True:
             self.respond("unknown")
             return
         if winForColor:
@@ -274,7 +275,24 @@ class GtpConnection():
         else:
             player = "w" if self.board.current_player == BLACK else "b"
             self.respond(player)
-    
+    """
+    winForColor, timeOut, winningMove = self.board.solveForColor(self.board.current_player,self.maxtime)
+        #print(str(winForColor) + "\n")
+        print(str(time.time() - self.board.time + self.maxtime) + "\n")
+        #print(str(winningMove) + "\n")
+        player = "b" if self.board.current_player == BLACK else "w"
+            if timeOut == True:
+                self.respond("unknown")
+                return
+        if winForColor:
+            move_coord = point_to_coord(winningMove, self.board.size)
+            move_as_string = format_point(move_coord)
+            self.respond(player + " " + move_as_string)
+            else:
+                player = "w" if self.board.current_player == BLACK else "b"
+                self.respond(player)
+    """
+
     def genmove_cmd(self, args):
         """
         Generate a move for the color args[0] in {'b', 'w'}, for the game of gomoku.
@@ -282,8 +300,8 @@ class GtpConnection():
         board_color = args[0].lower()
         color = color_to_int(board_color)
         
-        winForColor, timeUsed, winningMove = self.board.solveForColor(color)
-        if timeUsed > self.maxtime:
+        winForColor, timeOut, winningMove = self.board.solveForColor(color, self.maxtime)
+        if timeOut == True:
             move = self.go_engine.get_move(self.board, color)
             move_coord = point_to_coord(move, self.board.size)
             move_as_string = format_point(move_coord)

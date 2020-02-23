@@ -11,6 +11,7 @@ The board uses a 1-dimensional representation with padding
 
 import numpy as np
 import time
+from transpositiontable import TranspositionTable
 from board_util import GoBoardUtil, BLACK, WHITE, EMPTY, BORDER, \
                        PASS, is_black_white, coord_to_point, where1d, \
                        MAXSIZE, NULLPOINT
@@ -60,7 +61,7 @@ class SimpleGoBoard(object):
                 return False
         self.board[point] = EMPTY
         return True
-
+                
     def _detect_captures(self, point, opp_color):
         """
         Did move on point capture something?
@@ -96,13 +97,13 @@ class SimpleGoBoard(object):
         self.ko_recapture = None
         self.current_player = BLACK
         self.moves = []
-        self.time = 1
         self.current_winning_move = None
         self.maxpoint = size * size + 3 * (size + 1)
         self.board = np.full(self.maxpoint, BORDER, dtype = np.int32)
         self.liberty_of = np.full(self.maxpoint, NULLPOINT, dtype = np.int32)
         self._initialize_empty_points(self.board)
         self._initialize_neighbors()
+        self.time = 0
 
     def copy(self):
         b = SimpleGoBoard(self.size)
@@ -301,15 +302,7 @@ class SimpleGoBoard(object):
         self.current_player = GoBoardUtil.opponent(self.current_player)
     
     def winner(self):
-        result = EMPTY
-        empties = self.get_empty_points()
-        color = self.current_player
-        legal_moves = []
-        for move in empties:
-            if self.is_legal(move, color):
-                legal_moves.append(move)
-        if not legal_moves:
-            result = BLACK if self.current_player == WHITE else WHITE
+        result = BLACK if self.current_player == WHITE else WHITE
         return result
 
     def staticallyEvaluateForPlay(self):
@@ -319,36 +312,82 @@ class SimpleGoBoard(object):
             return True
         assert winColor == GoBoardUtil.opponent(self.current_player)
         return False
-        
-    def endOfGame(self):
-        return self.winner() != EMPTY
 
-    def negamaxBoolean(self):
-        if self.endOfGame():
-            return self.staticallyEvaluateForPlay()
+    def code(self):
+        code = 0
+        a = where1d(self.board == BLACK)
+        b = where1d(self.board == WHITE)
+        c = where1d(self.board == EMPTY)
+        points = np.concatenate([a,b,c])
+        for i in points:
+            
+            code += self.board[i] * (3 ** (i - self.size - 1))
+        return code
+
+    def storeResult(self, tt, result):
+        tt.store(self.code(), result)
+        return result
+
+    def negamaxBoolean(self, tt):
+        #if time.time() > self.time:
+        #   return False
+        end = True
+        result = tt.lookup(self.code())
+        if result != None:
+            return result
         empties = self.get_empty_points()
         color = self.current_player
-        legal_moves = []
         for move in empties:
             if self.is_legal(move, color):
-                legal_moves.append(move)
-        for move in legal_moves:
-            self.play_move(move, color)
-            success = not self.negamaxBoolean()
-            self.undoMove()
-            if success:
-                self.current_winning_move = move
-                return True
-        return False
+                end = False
+                self.board[move] = color
+                #print(move)
+                self.current_player = GoBoardUtil.opponent(color)
+                success = not self.negamaxBoolean(tt)
+                self.board[move] = EMPTY
+                self.current_player = color
+                if success:
+                    self.current_winning_move = move
+                    return self.storeResult(tt, True)
+                #legal_moves.append(move)
+        #if not legal_moves:
+        if end:
+            result = self.staticallyEvaluateForPlay()
+            return self.storeResult(tt, result)
+        #for move in legal_moves:
+        
+        return self.storeResult(tt, False)
 
-    def solveForColor(self, color):
+    def call_search(self):
+        tt = TranspositionTable() # use separate table for each color
+        return self.negamaxBoolean(tt)
+
+    def solveForColor(self, color, timelimit):
         assert is_black_white(color)
-        timeout = time.time() + self.time
-        winForToPlay = self.negamaxBoolean()    
-        if time.time() > timeout:
-            return False, self.time, None
+        self.time = time.time() + timelimit
+        timeOut = False
+        winForToPlay = self.negamaxBoolean()
+        if time.time() > self.time:
+            timeOut = True
         winForColor = winForToPlay == (color == self.current_player)
-        return winForColor, timeUsed, self.current_winning_move
+        return winForColor, timeOut, self.current_winning_move
+
+    def solve(self, color, timelimit):
+        #state.setDrawWinner(opponent(state.toPlay))
+        self.time = time.time() + timelimit
+        timeOut = False
+        win = self.call_search()
+        if time.time() > self.time:
+            timeOut = True
+        if win == (color == self.current_player):
+            return True, timeOut, self.current_winning_move
+    # loss or draw, do second search to find out
+    #state.setDrawWinner(state.toPlay)
+    #if self.call_search():
+    #return EMPTY # draw
+        else: # loss
+            return False, timeOut, self.current_winning_move
+            #return opponent(state.toPlay)
 
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """
