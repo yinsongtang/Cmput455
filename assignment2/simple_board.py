@@ -39,8 +39,6 @@ class SimpleGoBoard(object):
             return False
         elif self.board[point] != EMPTY:
             return False
-        if point == self.ko_recapture:
-            return False
         
         opp_color = GoBoardUtil.opponent(color)
         in_enemy_eye = self._is_surrounded(point, opp_color)
@@ -104,16 +102,6 @@ class SimpleGoBoard(object):
         self._initialize_empty_points(self.board)
         self._initialize_neighbors()
         self.time = 0
-
-    def copy(self):
-        b = SimpleGoBoard(self.size)
-        assert b.NS == self.NS
-        assert b.WE == self.WE
-        b.ko_recapture = self.ko_recapture
-        b.current_player = self.current_player
-        assert b.maxpoint == self.maxpoint
-        b.board = np.copy(self.board)
-        return b
 
     def row_start(self, row):
         assert row >= 1
@@ -295,11 +283,6 @@ class SimpleGoBoard(object):
             self.ko_recapture = single_captures[0]
         self.current_player = GoBoardUtil.opponent(color)
         return True
-
-    def undoMove(self):
-        point = self.moves.pop()
-        self.board[point] = EMPTY
-        self.current_player = GoBoardUtil.opponent(self.current_player)
     
     def winner(self):
         result = BLACK if self.current_player == WHITE else WHITE
@@ -329,8 +312,8 @@ class SimpleGoBoard(object):
         return result
 
     def negamaxBoolean(self, tt):
-        #if time.time() > self.time:
-        #   return False
+        if time.time() > self.time:
+            return False
         end = True
         result = tt.lookup(self.code())
         if result != None:
@@ -363,12 +346,13 @@ class SimpleGoBoard(object):
         return self.negamaxBoolean(tt)
 
     def solveForColor(self, color, timelimit):
+        self.current_winning_move = None
         assert is_black_white(color)
         self.time = time.time() + timelimit
         timeOut = False
         winForToPlay = self.negamaxBoolean()
-        if time.time() > self.time:
-            timeOut = True
+        #if time.time() > self.time:
+        #    timeOut = True
         winForColor = winForToPlay == (color == self.current_player)
         return winForColor, timeOut, self.current_winning_move
 
