@@ -102,6 +102,7 @@ class SimpleGoBoard(object):
         self._initialize_empty_points(self.board)
         self._initialize_neighbors()
         self.time = 0
+        self.valid_points = self.valid_point()
 
     def row_start(self, row):
         assert row >= 1
@@ -295,15 +296,17 @@ class SimpleGoBoard(object):
             return True
         assert winColor == GoBoardUtil.opponent(self.current_player)
         return False
-
-    def code(self):
-        code = 0
+    
+    def valid_point(self):
         a = where1d(self.board == BLACK)
         b = where1d(self.board == WHITE)
         c = where1d(self.board == EMPTY)
-        points = np.concatenate([a,b,c])
-        for i in points:
-            
+        return np.concatenate([a,b,c])        
+        
+        
+    def code(self):
+        code = 0
+        for i in self.valid_points:
             code += self.board[i] * (3 ** (i - self.size - 1))
         return code
 
@@ -315,7 +318,8 @@ class SimpleGoBoard(object):
         if time.time() > self.time:
             return False
         end = True
-        result = tt.lookup(self.code())
+        codes = self.code()
+        result = tt.lookup(codes)
         if result != None:
             return result
         empties = self.get_empty_points()
@@ -324,22 +328,24 @@ class SimpleGoBoard(object):
             if self.is_legal(move, color):
                 end = False
                 self.board[move] = color
-                #print(move)
                 self.current_player = GoBoardUtil.opponent(color)
                 success = not self.negamaxBoolean(tt)
                 self.board[move] = EMPTY
                 self.current_player = color
                 if success:
                     self.current_winning_move = move
-                    return self.storeResult(tt, True)
-                #legal_moves.append(move)
-        #if not legal_moves:
+                    tt.store(codes, True)
+                    return True
+                    #return self.storeResult(tt, False)
+                
         if end:
             result = self.staticallyEvaluateForPlay()
-            return self.storeResult(tt, result)
-        #for move in legal_moves:
-        
-        return self.storeResult(tt, False)
+            tt.store(codes, result)
+            return result
+            #return self.storeResult(tt, result)
+        tt.store(codes, False)
+        return False
+        #return self.storeResult(tt, False)
 
     def call_search(self):
         tt = TranspositionTable() # use separate table for each color
