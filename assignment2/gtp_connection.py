@@ -413,8 +413,8 @@ def format_point(move):
     """
     Return move coordinates as a string such as 'a1', or 'pass'.
     """
-    column_letters = "ABCDEFGHJKLMNOPQRSTUVWXYZ"
-    #column_letters = "abcdefghjklmnopqrstuvwxyz"
+    #column_letters = "ABCDEFGHJKLMNOPQRSTUVWXYZ"
+    column_letters = "abcdefghjklmnopqrstuvwxyz"
     if move == PASS:
         return "pass"
     row, col = move
