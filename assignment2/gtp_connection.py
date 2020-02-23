@@ -270,7 +270,7 @@ class GtpConnection():
         if winForColor:
             move_coord = point_to_coord(winningMove, self.board.size)
             move_as_string = format_point(move_coord)
-            self.respond(self.board.current_player + " " + move_as_string)
+            self.respond(player + " " + move_as_string)
         else:
             player = "w" if self.board.current_player == BLACK else "b"
             self.respond(player)
