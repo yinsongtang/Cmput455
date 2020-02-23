@@ -12,6 +12,7 @@ from board_util import GoBoardUtil, BLACK, WHITE, EMPTY, BORDER, PASS, \
                        MAXSIZE, coord_to_point
 import numpy as np
 import re
+import time
 
 class GtpConnection():
 
@@ -259,12 +260,12 @@ class GtpConnection():
 
     
     def solve_cmd(self, args):
-        winForColor, timeUsed, winningMove = self.board.solveForColor(self.board.current_player)
-        print(str(winForColor) + "\n")
-        print(str(timeUsed) + "\n")
-        print(str(winningMove) + "\n")
+        winForColor, timeOut, winningMove = self.board.solveForColor(self.board.current_player,self.maxtime)
+        #print(str(winForColor) + "\n")
+        print(str(time.time() - self.board.time + self.maxtime) + "\n")
+        #print(str(winningMove) + "\n")
         player = "b" if self.board.current_player == BLACK else "w"
-        if timeUsed > self.maxtime:
+        if timeOut == True:
             self.respond("unknown")
             return
         if winForColor:
@@ -282,8 +283,8 @@ class GtpConnection():
         board_color = args[0].lower()
         color = color_to_int(board_color)
         
-        winForColor, timeUsed, winningMove = self.board.solveForColor(color)
-        if timeUsed > self.maxtime:
+        winForColor, timeOut, winningMove = self.board.solveForColor(color)
+        if timeOut == True:
             move = self.go_engine.get_move(self.board, color)
             move_coord = point_to_coord(move, self.board.size)
             move_as_string = format_point(move_coord)

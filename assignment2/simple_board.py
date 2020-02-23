@@ -27,17 +27,40 @@ class SimpleGoBoard(object):
         """
         Check whether it is legal for color to play on point
         """
-        board_copy = self.copy()
+        #board_copy = self.copy()
         # Try to play the move on a temporary copy of board
         # This prevents the board from being messed up by the move
-        try:
-            legal = board_copy.play_move(point, color)
-            #self.undoMove()
-        except:
+        #try:
+        #   legal = board_copy.play_move(point, color)
+        #except:
+        #    return False
+        if point == PASS:
             return False
-            
-        return legal
-
+        elif self.board[point] != EMPTY:
+            return False
+        if point == self.ko_recapture:
+            return False
+        
+        opp_color = GoBoardUtil.opponent(color)
+        in_enemy_eye = self._is_surrounded(point, opp_color)
+        self.board[point] = color
+        single_captures = []
+        neighbors = self.neighbors[point]
+        for nb in neighbors:
+            if self.board[nb] == opp_color:
+                single_capture = self._detect_and_process_capture(nb)
+                if single_capture == True:
+                    self.board[point] = EMPTY
+                    return False
+        if not self._stone_has_liberty(point):
+            # check suicide of whole block
+            block = self._block_of(point)
+            if not self._has_liberty(block): # undo suicide move
+                self.board[point] = EMPTY
+                return False
+        self.board[point] = EMPTY
+        return True
+    
     def _detect_captures(self, point, opp_color):
         """
         Did move on point capture something?
@@ -79,6 +102,7 @@ class SimpleGoBoard(object):
         self.liberty_of = np.full(self.maxpoint, NULLPOINT, dtype = np.int32)
         self._initialize_empty_points(self.board)
         self._initialize_neighbors()
+        self.time = 0
 
     def copy(self):
         b = SimpleGoBoard(self.size)
@@ -277,15 +301,7 @@ class SimpleGoBoard(object):
         self.current_player = GoBoardUtil.opponent(self.current_player)
     
     def winner(self):
-        result = EMPTY
-        empties = self.get_empty_points()
-        color = self.current_player
-        legal_moves = []
-        for move in empties:
-            if self.is_legal(move, color):
-                legal_moves.append(move)
-        if not legal_moves:
-            result = BLACK if self.current_player == WHITE else WHITE
+        result = BLACK if self.current_player == WHITE else WHITE
         return result
 
     def staticallyEvaluateForPlay(self):
@@ -295,19 +311,18 @@ class SimpleGoBoard(object):
             return True
         assert winColor == GoBoardUtil.opponent(self.current_player)
         return False
-        
-    def endOfGame(self):
-        return self.winner() != EMPTY
 
     def negamaxBoolean(self):
-        if self.endOfGame():
-            return self.staticallyEvaluateForPlay()
+        if time.time() > self.time:
+            return False        
         empties = self.get_empty_points()
         color = self.current_player
         legal_moves = []
         for move in empties:
             if self.is_legal(move, color):
                 legal_moves.append(move)
+        if not legal_moves:
+            return self.staticallyEvaluateForPlay()
         for move in legal_moves:
             self.play_move(move, color)
             success = not self.negamaxBoolean()
@@ -317,13 +332,15 @@ class SimpleGoBoard(object):
                 return True
         return False
 
-    def solveForColor(self, color):
+    def solveForColor(self, color, timelimit):
         assert is_black_white(color)
-        start = time.process_time()
+        self.time = time.time() + timelimit
+        timeOut = False
         winForToPlay = self.negamaxBoolean()
-        timeUsed = time.process_time() - start
+        if time.time() > self.time:
+            timeOut = True
         winForColor = winForToPlay == (color == self.current_player)
-        return winForColor, timeUsed, self.current_winning_move
+        return winForColor, timeOut, self.current_winning_move
 
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """
