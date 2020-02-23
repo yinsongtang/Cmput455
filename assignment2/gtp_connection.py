@@ -252,7 +252,7 @@ class GtpConnection():
         sets the maximum time to use for all following genmove or solve commands, until it is changed by another timelimit command
         """
         if int(args[0]) >= 1 and int(args[0]) <= 100:
-            self.maxtime = int(args[0])
+            self.board.time = int(args[0])
         else:
             self.respond("illegal time: \"{} \" ".format(args[0]))
             return

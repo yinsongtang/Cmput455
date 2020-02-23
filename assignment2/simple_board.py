@@ -27,15 +27,39 @@ class SimpleGoBoard(object):
         """
         Check whether it is legal for color to play on point
         """
-        board_copy = self.copy()
+        #board_copy = self.copy()
         # Try to play the move on a temporary copy of board
         # This prevents the board from being messed up by the move
-        try:
-            legal = board_copy.play_move(point, color)
-        except:
+        #try:
+        #   legal = board_copy.play_move(point, color)
+        #except:
+        #    return False
+        if point == PASS:
             return False
-            
-        return legal
+        elif self.board[point] != EMPTY:
+            return False
+        if point == self.ko_recapture:
+            return False
+        
+        opp_color = GoBoardUtil.opponent(color)
+        in_enemy_eye = self._is_surrounded(point, opp_color)
+        self.board[point] = color
+        single_captures = []
+        neighbors = self.neighbors[point]
+        for nb in neighbors:
+            if self.board[nb] == opp_color:
+                single_capture = self._detect_and_process_capture(nb)
+                if single_capture == True:
+                    self.board[point] = EMPTY
+                    return False
+        if not self._stone_has_liberty(point):
+            # check suicide of whole block
+            block = self._block_of(point)
+            if not self._has_liberty(block): # undo suicide move
+                self.board[point] = EMPTY
+                return False
+        self.board[point] = EMPTY
+        return True
 
     def _detect_captures(self, point, opp_color):
         """
@@ -72,6 +96,7 @@ class SimpleGoBoard(object):
         self.ko_recapture = None
         self.current_player = BLACK
         self.moves = []
+        self.time = 1
         self.current_winning_move = None
         self.maxpoint = size * size + 3 * (size + 1)
         self.board = np.full(self.maxpoint, BORDER, dtype = np.int32)
@@ -318,9 +343,10 @@ class SimpleGoBoard(object):
 
     def solveForColor(self, color):
         assert is_black_white(color)
-        start = time.process_time()
-        winForToPlay = self.negamaxBoolean()
-        timeUsed = time.process_time() - start
+        timeout = time.time() + self.time
+        winForToPlay = self.negamaxBoolean()    
+        if time.time() > timeout:
+            return False, self.time, None
         winForColor = winForToPlay == (color == self.current_player)
         return winForColor, timeUsed, self.current_winning_move
 
