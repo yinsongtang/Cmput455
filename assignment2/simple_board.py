@@ -297,7 +297,7 @@ class SimpleGoBoard(object):
 
     def negamaxBoolean(self):
         if time.time() > self.time:
-           return False     
+            return False     
         end = True
         empties = self.get_empty_points()
         color = self.current_player
