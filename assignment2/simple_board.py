@@ -38,8 +38,6 @@ class SimpleGoBoard(object):
             return False
         elif self.board[point] != EMPTY:
             return False
-        if point == self.ko_recapture:
-            return False
         
         opp_color = GoBoardUtil.opponent(color)
         in_enemy_eye = self._is_surrounded(point, opp_color)
@@ -103,16 +101,6 @@ class SimpleGoBoard(object):
         self._initialize_empty_points(self.board)
         self._initialize_neighbors()
         self.time = 0
-
-    def copy(self):
-        b = SimpleGoBoard(self.size)
-        assert b.NS == self.NS
-        assert b.WE == self.WE
-        b.ko_recapture = self.ko_recapture
-        b.current_player = self.current_player
-        assert b.maxpoint == self.maxpoint
-        b.board = np.copy(self.board)
-        return b
 
     def row_start(self, row):
         assert row >= 1
@@ -294,11 +282,6 @@ class SimpleGoBoard(object):
             self.ko_recapture = single_captures[0]
         self.current_player = GoBoardUtil.opponent(color)
         return True
-
-    def undoMove(self):
-        point = self.moves.pop()
-        self.board[point] = EMPTY
-        self.current_player = GoBoardUtil.opponent(self.current_player)
     
     def winner(self):
         result = BLACK if self.current_player == WHITE else WHITE
@@ -314,22 +297,23 @@ class SimpleGoBoard(object):
 
     def negamaxBoolean(self):
         if time.time() > self.time:
-            return False        
+            return False     
+        end = True
         empties = self.get_empty_points()
         color = self.current_player
-        legal_moves = []
         for move in empties:
             if self.is_legal(move, color):
-                legal_moves.append(move)
-        if not legal_moves:
+                end = False
+                self.board[move] = color
+                self.current_player = GoBoardUtil.opponent(color)
+                success = not self.negamaxBoolean()
+                self.board[move] = EMPTY    #undo move
+                self.current_player = color
+                if success:
+                    self.current_winning_move = move
+                    return True                
+        if end:
             return self.staticallyEvaluateForPlay()
-        for move in legal_moves:
-            self.play_move(move, color)
-            success = not self.negamaxBoolean()
-            self.undoMove()
-            if success:
-                self.current_winning_move = move
-                return True
         return False
 
     def solveForColor(self, color, timelimit):
@@ -337,8 +321,8 @@ class SimpleGoBoard(object):
         self.time = time.time() + timelimit
         timeOut = False
         winForToPlay = self.negamaxBoolean()
-        if time.time() > self.time:
-            timeOut = True
+        #if time.time() > self.time:
+        #    timeOut = True
         winForColor = winForToPlay == (color == self.current_player)
         return winForColor, timeOut, self.current_winning_move
 
