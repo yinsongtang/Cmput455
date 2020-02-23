@@ -193,8 +193,9 @@ class SimpleGoBoard(object):
             assert self.get_color(lib) == EMPTY
             for stone in where1d(block):
                 self.liberty_of[stone] = lib
-            return True
+            return True'''
         return False
+    
 
     def _block_of(self, stone):
         """
