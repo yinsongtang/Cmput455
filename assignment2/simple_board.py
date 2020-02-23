@@ -297,7 +297,7 @@ class SimpleGoBoard(object):
 
     def negamaxBoolean(self):
         if time.time() > self.time:
-            return False     
+           return False     
         end = True
         empties = self.get_empty_points()
         color = self.current_player
@@ -317,6 +317,7 @@ class SimpleGoBoard(object):
         return False
 
     def solveForColor(self, color, timelimit):
+        self.current_winning_move = None
         assert is_black_white(color)
         self.time = time.time() + timelimit
         timeOut = False

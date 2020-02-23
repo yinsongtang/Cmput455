@@ -283,8 +283,8 @@ class GtpConnection():
         board_color = args[0].lower()
         color = color_to_int(board_color)
         
-        winForColor, timeOut, winningMove = self.board.solveForColor(color)
-        if timeOut == True:
+        winForColor, timeOut, winningMove = self.board.solveForColor(color,self.maxtime)
+        if timeOut == True or winningMove == None:
             move = self.go_engine.get_move(self.board, color)
             move_coord = point_to_coord(move, self.board.size)
             move_as_string = format_point(move_coord)
@@ -295,13 +295,10 @@ class GtpConnection():
                 self.respond("resign")
                 return
         else:
-            if winningMove != None:
                 move_coord = point_to_coord(winningMove, self.board.size)
                 move_as_string = format_point(move_coord)
                 self.board.play_move(winningMove, color)
                 self.respond(move_as_string)
-            else:
-                self.respond("resign")
                 return
 
     def gogui_rules_game_id_cmd(self, args):
