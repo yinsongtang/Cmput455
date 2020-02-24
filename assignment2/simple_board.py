@@ -194,7 +194,7 @@ class SimpleGoBoard(object):
             assert self.get_color(lib) == EMPTY
             for stone in where1d(block):
                 self.liberty_of[stone] = lib
-            return True
+            return True'''
         return False
     
 
@@ -315,7 +315,52 @@ class SimpleGoBoard(object):
     def storeResult(self, tt, result):
         tt.store(self.code(), result)
         return result
-
+    
+    def solve_single(self, tt, point):
+        mid = int(((self.size+1)**2 + self.size + 1) / 2)
+        fpoint = mid + mid - point[0]
+        if time.time() > self.time:
+            return False
+        end = True
+        codes = self.code()
+        result = tt.lookup(codes)
+        if result != None:
+            return result
+        empties = self.get_empty_points()
+        color = self.current_player
+        if fpoint in empties:
+            end = False
+            self.board[fpoint] = color
+            self.current_player = GoBoardUtil.opponent(color)
+            success = not self.negamaxBoolean(tt)
+            self.board[fpoint] = EMPTY
+            self.current_player = color
+            if success:
+                self.current_winning_move = fpoint
+                tt.store(codes, True)
+                return True
+        for move in empties:
+            if self.is_legal(move, color):
+                end = False
+                self.board[move] = color
+                self.current_player = GoBoardUtil.opponent(color)
+                success = not self.negamaxBoolean(tt)
+                self.board[move] = EMPTY
+                self.current_player = color
+                if success:
+                    self.current_winning_move = move
+                    tt.store(codes, True)
+                    return True
+                    #return self.storeResult(tt, False)
+                
+        if end:
+            result = self.staticallyEvaluateForPlay()
+            tt.store(codes, result)
+            return result
+            #return self.storeResult(tt, result)
+        tt.store(codes, False)
+        return False
+    
     def negamaxBoolean(self, tt):
         if time.time() > self.time:
             return False
@@ -349,9 +394,12 @@ class SimpleGoBoard(object):
         return False
         #return self.storeResult(tt, False)
 
-    def call_search(self):
+    def call_search(self, point):
         tt = TranspositionTable() # use separate table for each color
-        return self.negamaxBoolean(tt)
+        if point == None:
+            return self.negamaxBoolean(tt)
+        else:
+            return self.solve_single(tt,point)
 
     def solveForColor(self, color, timelimit):
         self.current_winning_move = None
@@ -363,12 +411,21 @@ class SimpleGoBoard(object):
         #    timeOut = True
         winForColor = winForToPlay == (color == self.current_player)
         return winForColor, timeOut, self.current_winning_move
-
+    
+    def sigle_play(self):
+        a = where1d(self.board == BLACK)
+        b = where1d(self.board == WHITE)
+        point = np.concatenate([a,b]) 
+        if len(point) == 1:
+            return point
+        return   
+        
     def solve(self, color, timelimit):
         #state.setDrawWinner(opponent(state.toPlay))
         self.time = time.time() + timelimit
         timeOut = False
-        win = self.call_search()
+        point = self.sigle_play()
+        win = self.call_search(point)
         if time.time() > self.time:
             timeOut = True
         if win == (color == self.current_player):
