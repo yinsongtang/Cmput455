@@ -1,5 +1,5 @@
-#!/usr/local/bin/env python3
-#/usr/bin/python3
+#!/usr/bin/env python3
+#/usr/local/bin/python3
 # Set the path to your python3 above
 
 from gtp_connection import GtpConnection

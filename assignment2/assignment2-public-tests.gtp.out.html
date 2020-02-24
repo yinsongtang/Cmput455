@@ -1,0 +1,400 @@
+<html>
+<head>
+<title>Output: assignment2-public-tests.gtp</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="gogui-regress 1.5.1 (http://gogui.sf.net)">
+<style type="text/css">
+<!--
+body { margin:0; }
+span.comment { color:#999999; }
+span.fail { font-weight:bold; color:#ff5454; }
+span.error { font-weight:bold; color:#ffa954; }
+span.stderr { color:#666666; }
+span.invalid { background:#ff5454;}
+span.pass { font-weight:bold; color:#5eaf5e; }
+span.test { font-weight:bold; }
+-->
+</style>
+</head>
+<body bgcolor="white" text="black" link="#0000ee" vlink="#551a8b">
+<table border="0" width="100%" bgcolor="#91aee8" border="0">
+<tr><td>
+<h1>Output: assignment2-public-tests.gtp</h1>
+</td></tr>
+</table>
+<table width="100%" bgcolor="#e0e0e0">
+<tr><th align="left">Date:</th><td>February 23, 2020 at 9:04:21 PM MST</td></tr>
+<tr><th align="left">Host:</th><td>Boweis-MBP.hitronhub.home</td></tr>
+<tr><th align="left" valign="top">Command:</th>
+<td valign="top"><tt>Nogo.py</tt></td></tr>
+</table>
+<pre style="margin:1em">
+name
+= NoGoAssignment2
+
+version
+= 1.0
+
+cputime
+? Unknown command
+
+</pre>
+<hr style="margin:1em" size="1">
+<pre style="margin:1em">
+<span class="comment">#test 10, 20, ..., 50 are easy
+</span><span class="command">boardsize 4
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 10
+</span>= 
+
+<span class="command">play b a4
+</span>= 
+
+<span class="command">play w a2
+</span>= 
+
+<span class="command">play b b1
+</span>= 
+
+<span class="command">play w b3
+</span>= 
+
+<span class="command">play b c2
+</span>= 
+
+<span class="command">play w d1
+</span>= 
+
+<span class="command">play b d3
+</span>= 
+
+<span class="test"><a name="10">10 solve
+</a></span><span class="invalid">Invalid response: 0.3119652271270752
+</span><span class="test">#?[w d4|w c4]
+= w c4
+
+</span>
+<span class="command">boardsize 4
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 70
+</span>= 
+
+<span class="command">play b a4
+</span>= 
+
+<span class="command">play w a2
+</span>= 
+
+<span class="command">play b d1
+</span>= 
+
+<span class="command">play w d2
+</span>= 
+
+<span class="test"><a name="20">20 solve
+</a></span><span class="invalid">Invalid response: 1.0682039260864258
+</span><span class="test">#?[b a1|b b1|b b3]
+= b a1
+
+</span>
+<span class="command">boardsize 4
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 50
+</span>= 
+
+<span class="command">play b a4
+</span>= 
+
+<span class="command">play w a2
+</span>= 
+
+<span class="command">play b d1
+</span>= 
+
+<span class="command">play w d2
+</span>= 
+
+<span class="command">play b d3
+</span>= 
+
+<span class="test"><a name="30">30 solve
+</a></span><span class="invalid">Invalid response: 0.5361118316650391
+</span><span class="test">#?[w b1|w b2|w c1]
+= w b1
+
+</span>
+<span class="command">boardsize 4
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 5
+</span>= 
+
+<span class="command">play b c1
+</span>= 
+
+<span class="command">play w b4
+</span>= 
+
+<span class="command">play b a3
+</span>= 
+
+<span class="command">play w d2
+</span>= 
+
+<span class="command">play b d4
+</span>= 
+
+<span class="command">play w a1
+</span>= 
+
+<span class="command">play b b3
+</span>= 
+
+<span class="command">play w c2
+</span>= 
+
+<span class="command">play b c3
+</span>= 
+
+<span class="command">play w b2
+</span>= 
+
+<span class="test"><a name="40">40 solve
+</a></span><span class="invalid">Invalid response: 0.007827997207641602
+</span><span class="test">#?[w]
+= w
+
+</span>
+<span class="command">boardsize 4
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 1
+</span>= 
+
+<span class="command">play b c1
+</span>= 
+
+<span class="command">play w b4
+</span>= 
+
+<span class="command">play b a3
+</span>= 
+
+<span class="command">play w d2
+</span>= 
+
+<span class="command">play b d4
+</span>= 
+
+<span class="command">play w a1
+</span>= 
+
+<span class="command">play b b3
+</span>= 
+
+<span class="command">play w c2
+</span>= 
+
+<span class="command">play b c3
+</span>= 
+
+<span class="command">play w b2
+</span>= 
+
+<span class="command">play b a4
+</span>= 
+
+<span class="command">play w d1
+</span>= 
+
+<span class="command">play b a2
+</span>= 
+
+<span class="command">play w d3
+</span>= 
+
+<span class="test"><a name="50">50 genmove b
+</a>#?[resign]
+= resign
+
+</span>
+<span class="comment">#test 60, 70, 80 are medium
+</span><span class="command">boardsize 4
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 50
+</span>= 
+
+<span class="command">play b a4
+</span>= 
+
+<span class="test"><a name="60">60 solve
+</a></span><span class="invalid">Invalid response: 50.008557081222534
+</span><span class="test">#?[w d1]
+</span><span class="fail">= unknown
+
+</span>
+<span class="command">boardsize 4
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 50
+</span>= 
+
+<span class="command">play b a4
+</span>= 
+
+<span class="command">play w a2
+</span>= 
+
+<span class="test"><a name="70">70 solve
+</a></span><span class="invalid">Invalid response: 14.521800994873047
+</span><span class="test">#?[b a1|b b3|b b2|b b1|b c3|b c2|b c1]
+= b a1
+
+</span>
+<span class="command">boardsize 5
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 100
+</span>= 
+
+<span class="command">play b a1
+</span>= 
+
+<span class="command">play w a5
+</span>= 
+
+<span class="command">play b e1
+</span>= 
+
+<span class="command">play w e5
+</span>= 
+
+<span class="command">play b e3
+</span>= 
+
+<span class="command">play w e2
+</span>= 
+
+<span class="command">play b c5
+</span>= 
+
+<span class="command">play w d4
+</span>= 
+
+<span class="command">play b c3
+</span>= 
+
+<span class="command">play w b2
+</span>= 
+
+<span class="command">play b c2
+</span>= 
+
+<span class="test"><a name="80">80 solve
+</a></span><span class="invalid">Invalid response: 29.606750965118408
+</span><span class="test">#?[b]
+= b
+
+</span>
+<span class="comment">#test 90, 100, 110 are hard
+</span><span class="command">boardsize 4
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 20
+</span>= 
+
+<span class="command">play b a4
+</span>= 
+
+<span class="test"><a name="90">90 solve
+</a></span><span class="invalid">Invalid response: 20.003557920455933
+</span><span class="test">#?[unknown]
+= unknown
+
+</span>
+<span class="command">boardsize 5
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 100
+</span>= 
+
+<span class="command">play b a5
+</span>= 
+
+<span class="test"><a name="100">100 solve
+</a></span><span class="invalid">Invalid response: 100.01299905776978
+</span><span class="test">#?[unknown]
+= unknown
+
+</span>
+<span class="command">boardsize 5
+</span>= 
+
+<span class="command">clear_board
+</span>= 
+
+<span class="command">timelimit 100
+</span>= 
+
+<span class="command">play b a5
+</span>= 
+
+<span class="command">play w e5
+</span>= 
+
+<span class="command">play b a1
+</span>= 
+
+<span class="test"><a name="110">110 solve
+</a></span><span class="invalid">Invalid response: 100.01287913322449
+</span><span class="test">#?[unknown]
+= unknown
+
+</span></pre>
+<hr style="margin:1em" size="1">
+<pre style="margin:1em">
+</span>cputime
+? Unknown command
+
+quit
+= 
+
+</pre>
+<hr style="margin-bottom:0" size="1">
+<p style="margin-top:1; margin-right:5" align="right"><i><small>Generated on 2/23/20, 9:09 PM by gogui-regress 1.5.1 (<a href="http://gogui.sf.net">http://gogui.sf.net</a>)</small></i></p>
+</body>
+</html>

@@ -254,6 +254,7 @@ class GtpConnection():
         """
         if int(args[0]) >= 1 and int(args[0]) <= 100:
             self.maxtime = int(args[0])
+            self.respond()
         else:
             self.respond("illegal time: \"{} \" ".format(args[0]))
             return
@@ -262,7 +263,7 @@ class GtpConnection():
     def solve_cmd(self, args):
         winForColor, timeOut, winningMove = self.board.solve(self.board.current_player,self.maxtime)
         #print(str(winForColor) + "\n")
-        print(str(time.time() - self.board.time + self.maxtime) + "\n")
+        #print(str(time.time() - self.board.time + self.maxtime) + "\n")
         #print(str(winningMove) + "\n")
         player = "b" if self.board.current_player == BLACK else "w"
         if timeOut == True:
@@ -275,23 +276,7 @@ class GtpConnection():
         else:
             player = "w" if self.board.current_player == BLACK else "b"
             self.respond(player)
-    """
-    winForColor, timeOut, winningMove = self.board.solveForColor(self.board.current_player,self.maxtime)
-        #print(str(winForColor) + "\n")
-        print(str(time.time() - self.board.time + self.maxtime) + "\n")
-        #print(str(winningMove) + "\n")
-        player = "b" if self.board.current_player == BLACK else "w"
-            if timeOut == True:
-                self.respond("unknown")
-                return
-        if winForColor:
-            move_coord = point_to_coord(winningMove, self.board.size)
-            move_as_string = format_point(move_coord)
-            self.respond(player + " " + move_as_string)
-            else:
-                player = "w" if self.board.current_player == BLACK else "b"
-                self.respond(player)
-    """
+
 
     def genmove_cmd(self, args):
         """
