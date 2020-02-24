@@ -195,6 +195,7 @@ class SimpleGoBoard(object):
                 self.liberty_of[stone] = lib
             return True
         return False
+    
 
     def _block_of(self, stone):
         """
