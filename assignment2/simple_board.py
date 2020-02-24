@@ -190,7 +190,8 @@ class SimpleGoBoard(object):
         """
         lib = self._get_liberty(block)
         if lib != None:
-            assert self.get_color(lib) == EMPTY
+            return True 
+            '''assert self.get_color(lib) == EMPTY
             for stone in where1d(block):
                 self.liberty_of[stone] = lib
             return True'''
