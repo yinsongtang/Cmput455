@@ -10,8 +10,6 @@ The board uses a 1-dimensional representation with padding
 """
 
 import numpy as np
-import time
-from transpositiontable import TranspositionTable
 from board_util import GoBoardUtil, BLACK, WHITE, EMPTY, BORDER, \
                        PASS, is_black_white, coord_to_point, where1d, \
                        MAXSIZE, NULLPOINT
@@ -28,38 +26,28 @@ class SimpleGoBoard(object):
         """
         Check whether it is legal for color to play on point
         """
-        #board_copy = self.copy()
+        board_copy = self.copy()
         # Try to play the move on a temporary copy of board
         # This prevents the board from being messed up by the move
-        #try:
-        #   legal = board_copy.play_move(point, color)
-        #except:
-        #    return False
         if point == PASS:
-            return False
+            return True
         elif self.board[point] != EMPTY:
             return False
+        if point == self.ko_recapture:
+            return False
         
+        # General case: detect captures, suicide
         opp_color = GoBoardUtil.opponent(color)
-        in_enemy_eye = self._is_surrounded(point, opp_color)
         self.board[point] = color
-        single_captures = []
-        neighbors = self.neighbors[point]
-        for nb in neighbors:
-            if self.board[nb] == opp_color:
-                single_capture = self._detect_and_process_capture(nb)
-                if single_capture == True:
-                    self.board[point] = EMPTY
-                    return False
-        if not self._stone_has_liberty(point):
-            # check suicide of whole block
+        legal = True
+        has_capture = self._detect_captures(point, opp_color)
+        if not has_capture and not self._stone_has_liberty(point):
             block = self._block_of(point)
-            if not self._has_liberty(block): # undo suicide move
-                self.board[point] = EMPTY
-                return False
+            if not self._has_liberty(block): # suicide
+                legal = False
         self.board[point] = EMPTY
-        return True
-                
+        return legal
+
     def _detect_captures(self, point, opp_color):
         """
         Did move on point capture something?
@@ -94,15 +82,22 @@ class SimpleGoBoard(object):
         self.WE = 1
         self.ko_recapture = None
         self.current_player = BLACK
-        self.moves = []
-        self.current_winning_move = None
         self.maxpoint = size * size + 3 * (size + 1)
         self.board = np.full(self.maxpoint, BORDER, dtype = np.int32)
         self.liberty_of = np.full(self.maxpoint, NULLPOINT, dtype = np.int32)
         self._initialize_empty_points(self.board)
         self._initialize_neighbors()
-        self.time = 0
-        self.valid_points = self.valid_point()
+        self.last_move = None
+
+    def copy(self):
+        b = SimpleGoBoard(self.size)
+        assert b.NS == self.NS
+        assert b.WE == self.WE
+        b.ko_recapture = self.ko_recapture
+        b.current_player = self.current_player
+        assert b.maxpoint == self.maxpoint
+        b.board = np.copy(self.board)
+        return b
 
     def row_start(self, row):
         assert row >= 1
@@ -190,13 +185,11 @@ class SimpleGoBoard(object):
         """
         lib = self._get_liberty(block)
         if lib != None:
-            return True 
-            '''assert self.get_color(lib) == EMPTY
+            assert self.get_color(lib) == EMPTY
             for stone in where1d(block):
                 self.liberty_of[stone] = lib
-            return True'''
+            return True
         return False
-    
 
     def _block_of(self, stone):
         """
@@ -273,6 +266,7 @@ class SimpleGoBoard(object):
             if self.board[nb] == opp_color:
                 single_capture = self._detect_and_process_capture(nb)
                 if single_capture == True:
+                    self.board[point] = EMPTY
                     raise ValueError("capture")
         if not self._stone_has_liberty(point):
             # check suicide of whole block
@@ -280,163 +274,12 @@ class SimpleGoBoard(object):
             if not self._has_liberty(block): # undo suicide move
                 self.board[point] = EMPTY
                 raise ValueError("suicide")
-        self.moves.append(point)
         self.ko_recapture = None
         if in_enemy_eye and len(single_captures) == 1:
             self.ko_recapture = single_captures[0]
         self.current_player = GoBoardUtil.opponent(color)
+        self.last_move = point
         return True
-    
-    def winner(self):
-        result = BLACK if self.current_player == WHITE else WHITE
-        return result
-
-    def staticallyEvaluateForPlay(self):
-        winColor = self.winner()
-        assert winColor != EMPTY
-        if winColor == self.current_player:
-            return True
-        assert winColor == GoBoardUtil.opponent(self.current_player)
-        return False
-    
-    def valid_point(self):
-        a = where1d(self.board == BLACK)
-        b = where1d(self.board == WHITE)
-        c = where1d(self.board == EMPTY)
-        return np.concatenate([a,b,c])        
-        
-        
-    def code(self):
-        code = 0
-        for i in self.valid_points:
-            code += self.board[i] * (3 ** (i - self.size - 1))
-        return code
-
-    def storeResult(self, tt, result):
-        tt.store(self.code(), result)
-        return result
-    
-    def solve_single(self, tt, point):
-        mid = int(((self.size+1)**2 + self.size + 1) / 2)
-        fpoint = mid + mid - point[0]
-        if time.time() > self.time:
-            return False
-        end = True
-        codes = self.code()
-        result = tt.lookup(codes)
-        if result != None:
-            return result
-        empties = self.get_empty_points()
-        color = self.current_player
-        if fpoint in empties:
-            end = False
-            self.board[fpoint] = color
-            self.current_player = GoBoardUtil.opponent(color)
-            success = not self.negamaxBoolean(tt)
-            self.board[fpoint] = EMPTY
-            self.current_player = color
-            if success:
-                self.current_winning_move = fpoint
-                tt.store(codes, True)
-                return True
-        for move in empties:
-            if self.is_legal(move, color):
-                end = False
-                self.board[move] = color
-                self.current_player = GoBoardUtil.opponent(color)
-                success = not self.negamaxBoolean(tt)
-                self.board[move] = EMPTY
-                self.current_player = color
-                if success:
-                    self.current_winning_move = move
-                    tt.store(codes, True)
-                    return True
-                    #return self.storeResult(tt, False)
-                
-        if end:
-            result = self.staticallyEvaluateForPlay()
-            tt.store(codes, result)
-            return result
-            #return self.storeResult(tt, result)
-        tt.store(codes, False)
-        return False
-    
-    def negamaxBoolean(self, tt):
-        if time.time() > self.time:
-            return False
-        end = True
-        codes = self.code()
-        result = tt.lookup(codes)
-        if result != None:
-            return result
-        empties = self.get_empty_points()
-        color = self.current_player
-        for move in empties:
-            if self.is_legal(move, color):
-                end = False
-                self.board[move] = color
-                self.current_player = GoBoardUtil.opponent(color)
-                success = not self.negamaxBoolean(tt)
-                self.board[move] = EMPTY
-                self.current_player = color
-                if success:
-                    self.current_winning_move = move
-                    tt.store(codes, True)
-                    return True
-                    #return self.storeResult(tt, False)
-                
-        if end:
-            result = self.staticallyEvaluateForPlay()
-            tt.store(codes, result)
-            return result
-            #return self.storeResult(tt, result)
-        tt.store(codes, False)
-        return False
-        #return self.storeResult(tt, False)
-
-    def call_search(self, point):
-        tt = TranspositionTable() # use separate table for each color
-        if point == None:
-            return self.negamaxBoolean(tt)
-        else:
-            return self.solve_single(tt,point)
-
-    def solveForColor(self, color, timelimit):
-        self.current_winning_move = None
-        assert is_black_white(color)
-        self.time = time.time() + timelimit
-        timeOut = False
-        winForToPlay = self.negamaxBoolean()
-        #if time.time() > self.time:
-        #    timeOut = True
-        winForColor = winForToPlay == (color == self.current_player)
-        return winForColor, timeOut, self.current_winning_move
-    
-    def sigle_play(self):
-        a = where1d(self.board == BLACK)
-        b = where1d(self.board == WHITE)
-        point = np.concatenate([a,b]) 
-        if len(point) == 1:
-            return point
-        return   
-        
-    def solve(self, color, timelimit):
-        #state.setDrawWinner(opponent(state.toPlay))
-        self.time = time.time() + timelimit
-        timeOut = False
-        point = self.sigle_play()
-        win = self.call_search(point)
-        if time.time() > self.time:
-            timeOut = True
-        if win == (color == self.current_player):
-            return True, timeOut, self.current_winning_move
-    # loss or draw, do second search to find out
-    #state.setDrawWinner(state.toPlay)
-    #if self.call_search():
-    #return EMPTY # draw
-        else: # loss
-            return False, timeOut, self.current_winning_move
-            #return opponent(state.toPlay)
 
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """
@@ -481,6 +324,22 @@ class SimpleGoBoard(object):
             return 'pass'
         row, col = divmod(point, self.NS)
         return row, col
+
+    def last_moves_empty_neighbors(self):
+        """
+        Get the neighbors of last_move and second last move.
+        
+        Returns
+        -------
+        points :
+        points which are neighbors of last_move and last2_move
+        """
+        nb_list = []
+        c = self.last_move
+            #if c is None:  continue
+        nb_of_c_list = list(self._neighbors(c) + self._diag_neighbors(c))
+        nb_list += [d for d in nb_of_c_list if self.board[d] == EMPTY and d not in nb_list]
+        return nb_list
 
     # def is_legal_gomoku(self, point, color):
     #     """

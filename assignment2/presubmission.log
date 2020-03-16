@@ -1,0 +1,12 @@
+Script started on Mon Feb 24 08:53:39 2020
+[?1034hbash-3.2$ mkdir test
+bash-3.2$ cp assignment2.tgz test
+bash-3.2$ cd test
+bash-3.2$ tar -xf assignment2.tgz
+bash-3.2$ cd assignment2
+bash-3.2$ gogui-regress Nogo.py assignment2-public-tests.gtp
+60 unexpected FAIL: Correct 'w d1', got 'unknown'
+bash-3.2$ exit
+exit
+
+Script done on Mon Feb 24 09:00:44 2020
