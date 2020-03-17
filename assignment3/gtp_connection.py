@@ -249,7 +249,7 @@ class GtpConnection():
             probabilities = []
             for move in legal_moves:
                 coords = point_to_coord(move, self.board.size)
-                gtp_moves.append(format_point(coords))
+                gtp_moves.append(format_point(coords).lower())
                 probabilities.append(str(round(1/len(legal_moves), 3)))
             sorted_moves = ' '.join(sorted(gtp_moves))
             probability = ' '.join(probabilities)
@@ -258,15 +258,15 @@ class GtpConnection():
             moves, values = PatternUtil.generate_pattern_moves(self.board)
             new_values = PatternUtil.normalize_val(values)
             dict = {}
-            for i in range(len(moves)):
-                dict[moves[i]] = new_values[i]
             #sorted_moves = sorted(moves)
             new_sorted_values = []
             format_moves = []
             for move in moves:
                 #new_sorted_values.append(str(round(dict[move], 3)))
                 coords = point_to_coord(move, self.board.size)
-                format_moves.append(lower(format_point(coords)))
+                format_moves.append(format_point(coords).lower())
+            for i in range(len(format_moves)):
+                dict[format_moves[i]] = new_values[i]
             sorted_format_moves = sorted(format_moves)
             for move in sorted_format_moves:
                 new_sorted_values.append(str(round(dict[move], 3)))

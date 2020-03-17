@@ -36,29 +36,21 @@ class PatternUtil(object):
             elif d < 4:
                 if board.board[positions[d]] == board.current_player:
                     pattern += 1 * (4 ** d)
-                    print(pattern)
                 elif board.board[positions[d]] == GoBoardUtil.opponent(board.current_player):
                     pattern += 2 * (4 ** d)
-                    print(pattern)
                 elif board.board[positions[d]] == EMPTY:
                     pattern += 0
-                    print(pattern)
                 elif board.board[positions[d]] == BORDER:
                     pattern += 3 * (4 ** d)
-                    print(pattern)
             elif d > 4:
                 if board.board[positions[d]] == board.current_player:
                     pattern += 1 * (4 ** (d-1))
-                    print(pattern)
                 elif board.board[positions[d]] == GoBoardUtil.opponent(board.current_player):
                     pattern += 2 * (4 ** (d-1))
-                    print(pattern)
                 elif board.board[positions[d]] == EMPTY:
                     pattern += 0
-                    print(pattern)
                 elif board.board[positions[d]] == BORDER:
                     pattern += 3 * (4 ** (d-1))
-                    print(pattern)
         return pattern
 
     @staticmethod
