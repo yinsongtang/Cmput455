@@ -102,7 +102,7 @@ class Nogo():
             for move in moves:
                 wins = self.simulateMove(cboard, move, color)
                 moveWins.append(wins)
-            #writeMoves(cboard, moves, moveWins, self.sim)
+            writeMoves(cboard, moves, moveWins, self.sim)
             return select_best_move(board, moves, moveWins)
 
     

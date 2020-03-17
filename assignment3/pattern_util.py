@@ -80,8 +80,6 @@ class PatternUtil(object):
             if (val >= 0 and val < len(pat3set) and pat3set[val] != "1.0"):
                 assert p not in moves
                 assert board.board[p] == EMPTY
-                print(p)
-                print(val)
                 moves.append(p)
                 values.append(float(pat3set[val]))
         return moves,values
@@ -189,7 +187,8 @@ class PatternUtil(object):
                 if x < cumulative_probability:
                     break
                 i += 1
-            move = moves[i]
+            if i < len(moves):
+                move = moves[i]
             #move = PatternUtil.filter_moves_and_generate(board, moves, check_selfatari)
         if move == None:
             move = GoBoardUtil.generate_random_move(board, board.current_player,False)
