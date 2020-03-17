@@ -69,8 +69,8 @@ class Nogo():
                                     komi=self.komi,
                                     limit=self.limit,
                                     random_simulation = self.random_simulation,
-                                    use_pattern = self.use_pattern,
-                                    check_selfatari = False)
+                                    use_pattern = self.use_pattern)
+                                    #check_selfatari = False)
     
     def simulateMove(self, board, move, toplay):
         """

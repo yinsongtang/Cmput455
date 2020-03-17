@@ -169,7 +169,7 @@ class PatternUtil(object):
         return max_lib
     
     @staticmethod
-    def generate_move_with_filter(board, use_pattern, check_selfatari):
+    def generate_move_with_filter(board, use_pattern):
         """
         Arguments
         ---------
@@ -219,7 +219,7 @@ class PatternUtil(object):
         limit = kwargs.pop('limit', 1000)
         random_simulation = kwargs.pop('random_simulation',True)
         use_pattern = kwargs.pop('use_pattern',True)
-        check_selfatari = kwargs.pop('check_selfatari',True)
+        #check_selfatari = kwargs.pop('check_selfatari',True)
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
         nuPasses = 0
@@ -228,7 +228,7 @@ class PatternUtil(object):
             if random_simulation:
                 move = GoBoardUtil.generate_random_move(board,color,False)
             else:
-                move = PatternUtil.generate_move_with_filter(board,use_pattern,check_selfatari)
+                move = PatternUtil.generate_move_with_filter(board,use_pattern)
             if move == PASS:
                 break
             board.play_move(move, color)
