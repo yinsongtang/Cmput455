@@ -260,14 +260,17 @@ class GtpConnection():
             dict = {}
             for i in range(len(moves)):
                 dict[moves[i]] = new_values[i]
-            sorted_moves = sorted(moves)
+            #sorted_moves = sorted(moves)
             new_sorted_values = []
             format_moves = []
-            for move in sorted_moves:
-                new_sorted_values.append(str(round(dict[move], 3)))
+            for move in moves:
+                #new_sorted_values.append(str(round(dict[move], 3)))
                 coords = point_to_coord(move, self.board.size)
-                format_moves.append(format_point(coords))
-            sorted_moves_str = ' '.join(format_moves)
+                format_moves.append(lower(format_point(coords)))
+            sorted_format_moves = sorted(format_moves)
+            for move in sorted_format_moves:
+                new_sorted_values.append(str(round(dict[move], 3)))
+            sorted_moves_str = ' '.join(sorted_format_moves)
             probability = ' '.join(new_sorted_values)
             self.respond(sorted_moves_str + " " + probability)
     

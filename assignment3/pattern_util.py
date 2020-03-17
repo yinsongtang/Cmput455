@@ -21,9 +21,13 @@ class PatternUtil(object):
         patterns :
         Set of patterns in the same format of what michi pattern base provides. Please refer to pattern.py to see the format of the pattern.
         """
-        positions = [point-board.NS-1, point-board.NS, point-board.NS+1,
+        positions = [point+board.NS-1, point+board.NS, point+board.NS+1,
                      point-1, point, point+1,
-                     point+board.NS-1, point+board.NS, point+board.NS+1]
+                     point-board.NS-1, point-board.NS, point-board.NS+1]
+                     
+                     #positions = [point-board.NS-1, point-board.NS, point-board.NS+1,
+                     #            point-1, point, point+1,
+                     #            point+board.NS-1, point+board.NS, point+board.NS+1]
 
         pattern = 0
         for d in range(9):
@@ -32,21 +36,29 @@ class PatternUtil(object):
             elif d < 4:
                 if board.board[positions[d]] == board.current_player:
                     pattern += 1 * (4 ** d)
-                elif board.board[d] == GoBoardUtil.opponent(board.current_player):
+                    print(pattern)
+                elif board.board[positions[d]] == GoBoardUtil.opponent(board.current_player):
                     pattern += 2 * (4 ** d)
-                elif board.board[d] == EMPTY:
+                    print(pattern)
+                elif board.board[positions[d]] == EMPTY:
                     pattern += 0
-                elif board.board[d] == BORDER:
+                    print(pattern)
+                elif board.board[positions[d]] == BORDER:
                     pattern += 3 * (4 ** d)
+                    print(pattern)
             elif d > 4:
                 if board.board[positions[d]] == board.current_player:
                     pattern += 1 * (4 ** (d-1))
-                elif board.board[d] == GoBoardUtil.opponent(board.current_player):
+                    print(pattern)
+                elif board.board[positions[d]] == GoBoardUtil.opponent(board.current_player):
                     pattern += 2 * (4 ** (d-1))
-                elif board.board[d] == EMPTY:
+                    print(pattern)
+                elif board.board[positions[d]] == EMPTY:
                     pattern += 0
-                elif board.board[d] == BORDER:
+                    print(pattern)
+                elif board.board[positions[d]] == BORDER:
                     pattern += 3 * (4 ** (d-1))
+                    print(pattern)
         return pattern
 
     @staticmethod
@@ -57,7 +69,13 @@ class PatternUtil(object):
         See last_moves_empty_neighbors() in simple_board for detail.
         """
         color = board.current_player
-        pattern_checking_set = board.last_moves_empty_neighbors()
+        empties = board.get_empty_points()
+        legal_moves = []
+        for move in empties:
+            if board.is_legal(move,color):
+                legal_moves.append(move)
+        
+        #pattern_checking_set =
         moves = []
         pat3set = []
         values = []
@@ -65,11 +83,13 @@ class PatternUtil(object):
         for line in file:
             field = line.split(" ")
             pat3set.append(field[1])
-        for p in pattern_checking_set:
+        for p in legal_moves:
             val = PatternUtil.neighborhood_33(board, p)
             if (val >= 0 and val < len(pat3set) and pat3set[val] != "1.0"):
                 assert p not in moves
                 assert board.board[p] == EMPTY
+                print(p)
+                print(val)
                 moves.append(p)
                 values.append(float(pat3set[val]))
         return moves,values

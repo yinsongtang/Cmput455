@@ -26,27 +26,30 @@ class SimpleGoBoard(object):
         """
         Check whether it is legal for color to play on point
         """
-        board_copy = self.copy()
-        # Try to play the move on a temporary copy of board
-        # This prevents the board from being messed up by the move
         if point == PASS:
-            return True
+            return False
         elif self.board[point] != EMPTY:
             return False
-        if point == self.ko_recapture:
-            return False
         
-        # General case: detect captures, suicide
         opp_color = GoBoardUtil.opponent(color)
+        in_enemy_eye = self._is_surrounded(point, opp_color)
         self.board[point] = color
-        legal = True
-        has_capture = self._detect_captures(point, opp_color)
-        if not has_capture and not self._stone_has_liberty(point):
+        single_captures = []
+        neighbors = self.neighbors[point]
+        for nb in neighbors:
+            if self.board[nb] == opp_color:
+                single_capture = self._detect_and_process_capture(nb)
+                if single_capture == True:
+                    self.board[point] = EMPTY
+                    return False
+        if not self._stone_has_liberty(point):
+            # check suicide of whole block
             block = self._block_of(point)
-            if not self._has_liberty(block): # suicide
-                legal = False
+            if not self._has_liberty(block): # undo suicide move
+                self.board[point] = EMPTY
+                return False
         self.board[point] = EMPTY
-        return legal
+        return True
 
     def _detect_captures(self, point, opp_color):
         """
