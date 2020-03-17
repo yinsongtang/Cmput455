@@ -93,7 +93,6 @@ class Nogo():
                 moves.append(p)
         if not moves:
             return None
-        moves.append(None)
         if self.use_ucb:
             C = 0.4 #sqrt(2) is safe, this is more aggressive
             best = runUcb(self, cboard, C, moves, color)
@@ -103,7 +102,7 @@ class Nogo():
             for move in moves:
                 wins = self.simulateMove(cboard, move, color)
                 moveWins.append(wins)
-            writeMoves(cboard, moves, moveWins, self.sim)
+            #writeMoves(cboard, moves, moveWins, self.sim)
             return select_best_move(board, moves, moveWins)
 
     
