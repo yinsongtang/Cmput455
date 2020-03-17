@@ -2,7 +2,7 @@
 #/usr/bin/python3
 # Set the path to your python3 above
 
-from gtp_connection import GtpConnection
+from gtp_connection import GtpConnection, point_to_coord,format_point
 from board_util import GoBoardUtil
 from pattern_util import PatternUtil
 from simple_board import SimpleGoBoard
@@ -70,7 +70,7 @@ class Nogo():
                                     limit=self.limit,
                                     random_simulation = self.random_simulation,
                                     use_pattern = self.use_pattern,
-                                    check_selfatari = self.check_selfatari)
+                                    check_selfatari = False)
     
     def simulateMove(self, board, move, toplay):
         """
