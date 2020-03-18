@@ -1,0 +1,12 @@
+Script started on Tue Mar 17 14:27:13 2020
+[?1034hbash-3.2$ mkdir test
+bash-3.2$ cp assignment3.tgz test
+bash-3.2$ cd test
+bash-3.2$ tar -xf assignment3.tgz
+bash-3.2$ cd assignment3
+bash-3.2$ gogui-regress Nogo.py assignment3-public-tests.gtp
+110 unexpected FAIL: Correct 'd2|c3', got 'a2'
+bash-3.2$ exit
+exit
+
+Script done on Tue Mar 17 14:40:32 2020
